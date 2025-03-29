@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FOOXPAY - نظام التحويل البنكي الآمن</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-image: url('https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #4CAF50;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-img {
+            height: 40px;
+            margin-left: 10px;
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A, #CDDC39);
+            background-size: 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradient 5s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .menu-toggle {
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            color: #4CAF50;
+        }
+        
+        .menu-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 350px;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            transition: right 0.3s ease-in-out;
+            z-index: 99;
+            padding-top: 80px;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            border-left: 1px solid #4CAF50;
+        }
+        
+        .sidebar.open {
+            right: 0;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: rgba(76, 175, 80, 0.2);
+            transform: translateX(-5px);
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .sidebar-menu li i {
+            margin-left: 10px;
+            color: #4CAF50;
+            width: 25px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-top: 80px;
+            padding: 30px;
+            transition: margin-right 0.3s;
+            flex: 1;
+        }
+        
+        .main-content.shifted {
+            margin-right: 350px;
+        }
+        
+        .section {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            animation: fadeIn 0.5s;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            color: #4CAF50;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2 i {
+            margin-left: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        button i {
+            margin-left: 8px;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            display: none;
+        }
+        
+        .transaction {
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .transaction:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-date {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .payment-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .payment-method {
+            background-color: rgba(76, 175, 80, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            width: calc(33.333% - 10px);
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid #333;
+        }
+        
+        .payment-method:hover {
+            transform: scale(1.05);
+            background-color: rgba(76, 175, 80, 0.2);
+            border-color: #4CAF50;
+        }
+        
+        .payment-method i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+            color: #4CAF50;
+        }
+        
+        .payment-method-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .footer {
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #aaa;
+            padding: 40px 30px;
+            text-align: center;
+            margin-top: auto;
+            border-top: 1px solid #333;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 20px;
+            padding: 0 15px;
+        }
+        
+        .footer-section h3 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .footer-section p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .footer-section a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .footer-section a:hover {
+            color: #4CAF50;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .social-links a {
+            color: #fff;
+            margin: 0 15px;
+            font-size: 24px;
+            transition: all 0.3s;
+        }
+        
+        .social-links a:hover {
+            color: #4CAF50;
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            margin-top: 30px;
+            font-size: 14px;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+        }
+        
+        .bank-card {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .bank-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        
+        .card-logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .card-chip {
+            width: 50px;
+            height: 40px;
+            background-color: #ffd700;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            font-size: 24px;
+        }
+        
+        .card-number {
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            letter-spacing: 2px;
+            margin: 15px 0;
+            color: white;
+        }
+        
+        .card-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .card-detail {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+        
+        .card-holder {
+            text-transform: uppercase;
+        }
+        
+        .home-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-box {
+            flex: 1;
+            min-width: 250px;
+            background-color: rgba(76, 175, 80, 0.1);
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            transition: all 0.3s;
+        }
+        
+        .feature-box:hover {
+            transform: translateY(-5px);
+            background-color: rgba(76, 175, 80, 0.2);
+            border-color: #4CAF50;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        
+        .feature-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        
+        .feature-desc {
+            color: #aaa;
+            line-height: 1.6;
+        }
+        
+        .tax-info {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 3px solid #4CAF50;
+        }
+        
+        @media (max-width: 992px) {
+            .payment-method {
+                width: calc(50% - 10px);
+            }
+            
+            .feature-box {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 280px;
+            }
+            
+            .main-content.shifted {
+                margin-right: 280px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .payment-method {
+                width: 100%;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .footer-section {
+                min-width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-container">
+            <img src="https://via.placeholder.com/150x50?text=FOOXPAY" alt="FOOXPAY Logo" class="logo-img">
+            <div class="logo-text">FOOXPAY</div>
+        </div>
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+        </div>
+    </div>
+    
+    <div class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li onclick="showSection('home')"><i class="fas fa-home"></i>الصفحة الرئيسية</li>
+            <li onclick="showSection('create')"><i class="fas fa-user-plus"></i>إنشاء حساب جديد</li>
+            <li onclick="showSection('balance')"><i class="fas fa-wallet"></i>عرض الرصيد</li>
+            <li onclick="showSection('deposit')"><i class="fas fa-money-bill-wave"></i>إيداع أموال</li>
+            <li onclick="showSection('withdraw')"><i class="fas fa-hand-holding-usd"></i>سحب أموال</li>
+            <li onclick="showSection('transfer')"><i class="fas fa-exchange-alt"></i>تحويل أموال محلي</li>
+            <li onclick="showSection('international')"><i class="fas fa-globe"></i>تحويل دولي</li>
+            <li onclick="showSection('bank-transfer')"><i class="fas fa-university"></i>تحويل بنكي</li>
+            <li onclick="showSection('cash-delivery')"><i class="fas fa-truck"></i>تحويل تسليم يدوي</li>
+            <li onclick="showSection('investment')"><i class="fas fa-chart-line"></i>استثمار</li>
+            <li onclick="showSection('tip')"><i class="fas fa-gift"></i>إكرامية/تكريم</li>
+            <li onclick="showSection('transactions')"><i class="fas fa-history"></i>سجل المعاملات</li>
+            <li onclick="showSection('contact')"><i class="fas fa-envelope"></i>التواصل معنا</li>
+            <li onclick="showSection('support')"><i class="fas fa-headset"></i>خدمة العملاء</li>
+        </ul>
+        
+        <div class="tax-info">
+            <p><i class="fas fa-id-card"></i> الرقم الضريبي: 123-456-789</p>
+            <p><i class="fas fa-certificate"></i> مرخص من البنك المركزي</p>
+        </div>
+    </div>
+    
+    <div class="main-content" id="mainContent">
+        <!-- الصفحة الرئيسية -->
+        <div class="section active" id="home">
+            <h2><i class="fas fa-home"></i>مرحباً بك في FOOXPAY</h2>
+            <p>نظام التحويل البنكي الآمن والسريع لجميع احتياجاتك المالية. تحويل أموال بكل أمان وسهولة.</p>
+            
+            <div class="bank-card">
+                <div class="card-logo">FOOXPAY</div>
+                <div class="card-chip">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <div class="card-number">•••• •••• •••• 1234</div>
+                <div class="card-details">
+                    <div class="card-detail card-holder">علي محمد</div>
+                    <div class="card-detail">12/25</div>
+                    <div class="card-detail">VISA</div>
+                </div>
+            </div>
+            
+            <h3><i class="fas fa-bolt"></i>خدماتنا السريعة</h3>
+            <div class="home-features">
+                <div class="feature-box">
+                    <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="feature-title">تحويل آمن</div>
+                    <div class="feature-desc">نظام تحويل أموال مشفر بالكامل لحماية معاملاتك المالية</div>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-icon"><i class="fas fa-globe"></i></div>
+                    <div class="feature-title">تحويل دولي</div>
+                    <div class="feature-desc">إرسال واستقبال الأموال من حول العالم بأسعار تنافسية</div>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-icon"><i class="fas fa-clock"></i></div>
+                    <div class="feature-title">معاملات فورية</div>
+                    <div class="feature-desc">تحويل الأموال خلال ثواني إلى أي حساب بنكي أو محفظة إلكترونية</div>
+                </div>
+            </div>
+            
+            <h3><i class="fas fa-credit-card"></i>طرق الدفع المدعومة</h3>
+            <div class="payment-methods">
+                <div class="payment-method" onclick="showSection('vodafone-cash')">
+                    <i class="fas fa-mobile-alt"></i>
+                    <div class="payment-method-name">فودافون كاش</div>
+                </div>
+                <div class="payment-method" onclick="showSection('orange-cash')">
+                    <i class="fas fa-mobile-alt"></i>
+                    <div class="payment-method-name">أورانج كاش</div>
+                </div>
+                <div class="payment-method" onclick="showSection('paypal')">
+                    <i class="fab fa-paypal"></i>
+                    <div class="payment-method-name">باي بال</div>
+                </div>
+                <div class="payment-method" onclick="showSection('steam')">
+                    <i class="fab fa-steam"></i>
+                    <div class="payment-method-name">ستيم</div>
+                </div>
+                <div class="payment-method" onclick="showSection('epic-games')">
+                    <i class="fas fa-gamepad"></i>
+                    <div class="payment-method-name">ابيك جيمز</div>
+                </div>
+                <div class="payment-method" onclick="showSection('windows')">
+                    <i class="fab fa-windows"></i>
+                    <div class="payment-method-name">ويندوز</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- إنشاء حساب جديد -->
+        <div class="section" id="create">
+            <h2><i class="fas fa-user-plus"></i>إنشاء حساب جديد</h2>
+            <div class="form-group">
+                <label for="newAccountName">اسم الحساب:</label>
+                <input type="text" id="newAccountName" placeholder="أدخل اسم المستخدم">
+            </div>
+            <div class="form-group">
+                <label for="newAccountEmail">البريد الإلكتروني:</label>
+                <input type="email" id="newAccountEmail" placeholder="أدخل بريدك الإلكتروني">
+            </div>
+            <div class="form-group">
+                <label for="newAccountPhone">رقم الهاتف:</label>
+                <input type="tel" id="newAccountPhone" placeholder="أدخل رقم هاتفك">
+            </div>
+            <div class="form-group">
+                <label for="initialBalance">الرصيد الابتدائي:</label>
+                <input type="number" id="initialBalance" value="0" placeholder="أدخل المبلغ">
+            </div>
+            <button onclick="createAccount()"><i class="fas fa-user-plus"></i> إنشاء الحساب</button>
+            <div id="createResult" class="result"></div>
+        </div>
+        
+        <!-- عرض الرصيد -->
+        <div class="section" id="balance">
+            <h2><i class="fas fa-wallet"></i>عرض الرصيد</h2>
+            <div class="form-group">
+                <label for="balanceAccountName">اسم الحساب:</label>
+                <input type="text" id="balanceAccountName" placeholder="أدخل اسم الحساب">
+            </div>
+            <button onclick="showBalance()"><i class="fas fa-search"></i> عرض الرصيد</button>
+            <div id="balanceResult" class="result"></div>
+        </div>
+        
+        <!-- إيداع أموال -->
+        <div class="section" id="deposit">
+            <h2><i class="fas fa-money-bill-wave"></i>إيداع أموال</h2>
+            <div class="form-group">
+                <label for="depositAccountName">اسم الحساب:</label>
+                <input type="text" id="depositAccountName" placeholder="أدخل اسم الحساب">
+            </div>
+            <div class="form-group">
+                <label for="depositAmount">المبلغ:</label>
+                <input type="number" id="depositAmount" placeholder="أدخل المبلغ">
+            </div>
+            <div class="form-group">
+                <label for="depositMethod">طريقة الإيداع:</label>
+                <select id="depositMethod">
+                    <option value="vodafone">فودافون كاش</option>
+                    <option value="orange">أورانج كاش</option>
+                    <option value="paypal">باي بال</option>
+                    <option value="bank">تحويل بنكي</option>
+                    <option value="cash">نقدي</option>
+                </select>
+            </div>
+            <button onclick="depositMoney()"><i class="fas fa-coins"></i> إيداع</button>
+            <div id="depositResult" class="result"></div>
+        </div>
+        
+        <!-- سحب أموال -->
+        <div class="section" id="withdraw">
+            <h2><i class="fas fa-hand-holding-usd"></i>سحب أموال</h2>
+            <div class="form-group">
+                <label for="withdrawAccountName">اسم الحساب:</label>
+                <input type="text" id="withdrawAccountName" placeholder="أدخل اسم الحساب">
+            </div>
+            <div class="form-group">
+                <label for="withdrawAmount">المبلغ:</label>
+                <input type="number" id="withdrawAmount" placeholder="أدخل المبلغ">
+            </div>
+            <div class="form-group">
+                <label for="withdrawMethod">طريقة السحب:</label>
+                <select id="withdrawMethod">
+                    <option value="vodafone">فودافون كاش</option>
+                    <option value="orange">أورانج كاش</option>
+                    <option value="paypal">باي بال</option>
+                    <option value="bank">تحويل بنكي</option>
+                    <option value="cash">نقدي</option>
+                </select>
+            </div>
+            <button onclick="withdrawMoney()"><i class="fas fa-money-bill"></i> سحب</button>
+            <div id="withdrawResult" class="result"></div>
+        </div>
+        
+        <!-- تحويل أموال محلي -->
+        <div class="section" id="transfer">
+            <h2><i class="fas fa-exchange-alt"></i>تحويل أموال محلي</h2>
+            <div class="form-group">
+                <label for="fromAccount">الحساب المرسل:</label>
+                <input type="text" id="fromAccount" placeholder="أدخل اسم الحساب المرسل">
+            </div>
+            <div class="form-group">
+                <label for="toAccount">الحساب المستقبل:</label>
+                <input type="text" id="toAccount" placeholder="أدخل اسم الحساب المستقبل">
+            </div>
+            <div class="form-group">
+                <label for="transferAmount">المبلغ:</label>
+                <input type="number" id="transferAmount" placeholder="أدخل المبلغ">
+            </div>
+            <div class="form-group">
+                <label for="transferNote">ملاحظة (اختياري):</label>
+                <input type="text" id="transferNote" placeholder="أدخل ملاحظة إذا لزم الأمر">
+            </div>
+            <button onclick="transferMoney()"><i class="fas fa-paper-plane"></i> تحويل</button>
+            <div id="transferResult" class="result"></div>
+        </div>
+        
+        <!-- تحويل دولي -->
+        <div class="section" id="international">
+            <h2><i class="fas fa-globe"></i>تحويل دولي</h2>
+            <div class="form-group">
+                <label for="intFromAccount">الحساب المرسل:</label>
+                <input type="text" id="intFromAccount" placeholder="أدخل اسم الحساب المرسل">
+            </div>
+            <div class="form-group">
+                <label for="intCountry">البلد المستقبل:</label>
+                <select id="intCountry">
+                    <option value="usa">الولايات المتحدة</option>
+                    <option value="uk">المملكة المتحدة</option>
+                    <option value="uae">الإمارات</option>
+                    <option value="saudi">السعودية</option>
+                    <option value="europe">أوروبا</option>
+                    <option value="other">دولة أخرى</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="intBankName">اسم البنك المستقبل:</label>
+                <input type="text" id="intBankName" placeholder="أدخل اسم البنك">
+            </div>
+            <div class="form-group">
+                <label for="intAccountNumber">رقم الحساب/IBAN:</label>
+                <input type="text" id="intAccountNumber" placeholder="أدخل رقم الحساب الدولي">
+            </div>
+            <div class="form-group">
+                <label for="intAmount">المبلغ:</label>
+                <input type="number" id="intAmount" placeholder="أدخل المبلغ">
+            </div>
+            <div class="form-group">
+                <label for="intCurrency">العملة:</label>
+                <select id="intCurrency">
+                    <option value="usd">دولار أمريكي (USD)</option>
+                    <option value="eur">يورو (EUR)</option>
+                    <option value="gbp">جنيه إسترليني (GBP)</option>
+                    <option value="aed">درهم إماراتي (AED)</option>
+                    <option value="sar">ريال سعودي (SAR)</option>
+                </select>
+            </div>
+            <button onclick="internationalTransfer()"><i class="fas fa-globe-americas"></i> تحويل دولي</button>
+            <div id="internationalResult" class="result"></div>
+        </div>
+        
+        <!-- تحويل بنكي -->
+        <div class="section" id="bank-transfer">
+            <h2><i class="fas fa-university"></i>تحويل بنكي</h2>
+            <div class="form-group">
+                <label for="bankFromAccount">الحساب المرسل:</label>
+                <input type="text" id="bankFromAccount" placeholder="أدخل اسم الحساب المرسل">
+            </div>
+            <div class="form-group">
+                <label for="bankName">اسم البنك:</label>
+                <input type="text" id="bankName" placeholder="أدخل اسم البنك المستقبل">
+            </div>
+            <div class="form-group">
+                <label for="ibanNumber">رقم IBAN:</label>
+                <input type="text" id="ibanNumber" placeholder="أدخل رقم IBAN">
+            </div>
+            <div class="form-group">
+                <label for="bankAmount">المبلغ:</label>
+                <input type="number" id="bankAmount" placeholder="أدخل المبلغ">
+            </div>
+            <button onclick="bankTransfer()"><i class="fas fa-university"></i> تحويل بنكي</button>
+            <div id="bankTransferResult" class="result"></div>
+        </div>
+        
+        <!-- تحويل تسليم يدوي -->
+        <div class="section" id="cash-delivery">
+            <h2><i class="fas fa-truck"></i>تحويل تسليم يدوي</h2>
+            <div class="form-group">
+                <label for="deliveryFromAccount">الحساب المرسل:</label>
+                <input type="text" id="deliveryFromAccount" placeholder="أدخل اسم الحساب المرسل">
+            </div>
+            <div class="form-group">
+                <label for="receiverName">اسم المستلم:</label>
+                <input type="text" id="receiverName" placeholder="أدخل اسم المستلم كاملاً">
+            </div>
+            <div class="form-group">
+                <label for="receiverPhone">هاتف المستلم:</label>
+                <input type="text" id="receiverPhone" placeholder="أدخل رقم هاتف المستلم">
+            </div>
+            <div class="form-group">
+                <label for="deliveryAmount">المبلغ:</label>
+                <input type="number" id="deliveryAmount" placeholder="أدخل المبلغ">
+            </div>
+            <div class="form-group">
+                <label for="deliveryAddress">عنوان التسليم:</label>
+                <textarea id="deliveryAddress" rows="3" placeholder="أدخل عنوان التسليم بالتفصيل"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="deliveryDate">تاريخ التسليم:</label>
+                <input type="date" id="deliveryDate">
+            </div>
+            <button onclick="cashDelivery()"><i class="fas fa-truck-loading"></i> طلب تسليم</button>
+            <div id="cashDeliveryResult" class="result"></div>
+        </div>
+        
+        <!-- استثمار -->
+        <div class="section" id="investment">
+            <h2><i class="fas fa-chart-line"></i>استثمار الأموال</h2>
+            <div class="form-group">
+                <label for="investmentAccount">اسم الحساب:</label>
+                <input type="text" id="investmentAccount" placeholder="أدخل اسم الحساب">
+            </div>
+            <div class="form-group">
+                <label for="investmentAmount">المبلغ:</label>
+                <input type="number" id="investmentAmount" placeholder="أدخل المبلغ">
+            </div>
+            <div class="form-group">
+                <label for="investmentPlan">خطة الاستثمار:</label>
+                <select id="investmentPlan">
+                    <option value="short">قصير الأجل (10% ربح)</option>
+                    <option value="medium">متوسط الأجل (25% ربح)</option>
+                    <option value="long">طويل الأجل (50% ربح)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="investmentDuration">المدة (أيام):</label>
+                <input type="number" id="investmentDuration" placeholder="أدخل مدة الاستثمار بالأيام">
+            </div>
+            <button onclick="investMoney()"><i class="fas fa-hand-holding-usd"></i> استثمار</button>
+            <div id="investmentResult" class="result"></div>
+        </div>
+        
+        <!-- إكرامية/تكريم -->
+        <div class="section" id="tip">
+            <h2><i class="fas fa-gift"></i>إكرامية/تكريم</h2>
+            <div class="form-group">
+                <label for="tipFromAccount">الحساب المرسل:</label>
+                <input type="text" id="tipFromAccount" placeholder="أدخل اسم الحساب المرسل">
+            </div>
+            <div class="form-group">
+                <label for="tipToAccount">الحساب المستقبل:</label>
+                <input type="text" id="tipToAccount" placeholder="أدخل اسم الحساب المستقبل">
+            </div>
+            <div class="form-group">
+                <label for="tipAmount">المبلغ:</label>
+                <input type="number" id="tipAmount" placeholder="أدخل المبلغ">
+            </div>
+            <div class="form-group">
+                <label for="tipMessage">رسالة (اختياري):</label>
+                <input type="text" id="tipMessage" placeholder="أدخل رسالة التكريم">
+            </div>
+            <button onclick="sendTip()"><i class="fas fa-gift"></i> إرسال إكرامية</button>
+            <div id="tipResult" class="result"></div>
+        </div>
+        
+        <!-- عرض سجل المعاملات -->
+        <div class="section" id="transactions">
+            <h2><i class="fas fa-history"></i>سجل المعاملات</h2>
+            <div class="form-group">
+                <label for="transactionsAccountName">اسم الحساب:</label>
+                <input type="text" id="transactionsAccountName" placeholder="أدخل اسم الحساب">
+            </div>
+            <button onclick="showTransactions()"><i class="fas fa-search"></i> عرض السجل</button>
+            <div id="transactionsResult" class="result"></div>
+        </div>
+        
+        <!-- التواصل معنا -->
+        <div class="section" id="contact">
+            <h2><i class="fas fa-envelope"></i>التواصل معنا</h2>
+            <div class="form-group">
+                <label for="contactName">اسمك:</label>
+                <input type="text" id="contactName" placeholder="أدخل اسمك">
+            </div>
+            <div class="form-group">
+                <label for="contactEmail">بريدك الإلكتروني:</label>
+                <input type="email" id="contactEmail" placeholder="أدخل بريدك الإلكتروني">
+            </div>
+            <div class="form-group">
+                <label for="contactSubject">الموضوع:</label>
+                <input type="text" id="contactSubject" placeholder="أدخل موضوع الرسالة">
+            </div>
+            <div class="form-group">
+                <label for="contactMessage">الرسالة:</label>
+                <textarea id="contactMessage" rows="5" placeholder="أدخل رسالتك"></textarea>
+            </div>
+            <button onclick="sendContact()"><i class="fas fa-paper-plane"></i> إرسال الرسالة</button>
+            <div id="contactResult" class="result"></div>
+        </div>
+        
+        <!-- خدمة العملاء -->
+        <div class="section" id="support">
+            <h2><i class="fas fa-headset"></i>خدمة العملاء</h2>
+            <div class="form-group">
+                <label for="supportAccount">اسم الحساب (اختياري):</label>
+                <input type="text" id="supportAccount" placeholder="أدخل اسم الحساب إذا كان لديك">
+            </div>
+            <div class="form-group">
+                <label for="supportSubject">نوع الاستفسار:</label>
+                <select id="supportSubject">
+                    <option value="technical">مشكلة تقنية</option>
+                    <option value="transaction">استفسار عن معاملة</option>
+                    <option value="account">مشكلة في الحساب</option>
+                    <option value="complaint">شكوى</option>
+                    <option value="suggestion">اقتراح</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="supportMessage">تفاصيل الاستفسار:</label>
+                <textarea id="supportMessage" rows="5" placeholder="أدخل تفاصيل استفسارك"></textarea>
+            </div>
+            <button onclick="requestSupport()"><i class="fas fa-headset"></i> إرسال الطلب</button>
+            <div id="supportResult" class="result"></div>
+            
+            <div style="margin-top: 30px; background-color: rgba(76, 175, 80, 0.1); padding: 20px; border-radius: 10px; border: 1px solid #4CAF50;">
+                <h3><i class="fas fa-phone-alt"></i> طرق التواصل المباشر</h3>
+                <p><i class="fas fa-phone"></i> هاتف الدعم: <a href="tel:01023719035" style="color: #4CAF50;">01023719035</a></p>
+                <p><i class="fas fa-envelope"></i> البريد الإلكتروني: <a href="mailto:FOOXGIMING@GMAIL.COM" style="color: #4CAF50;">FOOXGIMING@GMAIL.COM</a></p>
+                <p><i class="fas fa-clock"></i> أوقات العمل: من الساعة 9 صباحاً حتى 5 مساءً (بتوقيت القاهرة)</p>
+            </div>
+        </div>
+        
+        <!-- أقسام طرق الدفع الإضافية -->
+        <div class="section" id="vodafone-cash">
+            <h2><i class="fas fa-mobile-alt"></i>فودافون كاش</h2>
+            <div class="form-group">
+                <label for="vodafoneAccount">الحساب المرسل:</label>
+                <input type="text" id="vodafoneAccount" placeholder="أدخل اسم الحساب المرسل">
+            </div>
+            <div class="form-group">
+                <label for="vodafoneNumber">رقم فودافون كاش:</label>
+                <input type="text" id="vodafoneNumber" placeholder="أدخل رقم فودافون كاش">
+            </div>
+            <div class="form-group">
+                <label for="vodafoneAmount">المبلغ:</label>
+                <input type="number" id="vodafoneAmount" placeholder="أدخل المبلغ">
+            </div>
+            <button onclick="vodafoneTransfer()"><i class="fas fa-paper-plane"></i> تحويل</button>
+            <div id="vodafoneResult" class="result"></div>
+        </div>
+        
+        <div class="section" id="orange-cash">
+            <h2><i class="fas fa-mobile-alt"></i>أورانج كاش</h2>
+            <div class="form-group">
+                <label for="orangeAccount">الحساب المرسل:</label>
+                <input type="text" id="orangeAccount" placeholder="أدخل اسم الحساب المرسل">
+            </div>
+            <div class="form-group">
+                <label for="orangeNumber">رقم أورانج كاش:</label>
+                <input type="text" id="orangeNumber" placeholder="أدخل رقم أورانج كاش">
+            </div>
+            <div class="form-group">
+                <label for="orangeAmount">المبلغ:</label>
+                <input type="number" id="orangeAmount" placeholder="أدخل المبلغ">
+            </div>
+            <button onclick="orangeTransfer()"><i class="fas fa-paper-plane"></i> تحويل</button>
+            <div id="orangeResult" class="result"></div>
+        </div>
+        
+        <div class="section" id="paypal">
+            <h2><i class="fab fa-paypal"></i>باي بال</h2>
+            <div class="form-group">
+                <label for="paypalAccount">الحساب المرسل:</label>
+                <input type="text" id="paypalAccount" placeholder="أدخل اسم الحساب المرسل">
+            </div>
+            <div class="form-group">
+                <label for="paypalEmail">بريد باي بال:</label>
+                <input type="email" id="paypalEmail" placeholder="أدخل بريد باي بال">
+            </div>
+            <div class="form-group">
+                <label for="paypalAmount">المبلغ:</label>
+                <input type="number" id="paypalAmount" placeholder="أدخل المبلغ">
+            </div>
+            <div class="form-group">
+                <label for="paypalCurrency">العملة:</label>
+                <select id="paypalCurrency">
+                    <option value="USD">دولار أمريكي (USD)</option>
+                    <option value="EUR">يورو (EUR)</option>
+                    <option value="GBP">جنيه إسترليني (GBP)</option>
+                </select>
+            </div>
+            <button onclick="paypalTransfer()"><i class="fas fa-paper-plane"></i> تحويل</button>
+            <div id="paypalResult" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>عن FOOXPAY</h3>
+                <p>نظام تحويل الأموال الآمن والسريع الذي يمكنك من إجراء جميع معاملاتك المالية بكل سهولة وأمان.</p>
+                <p><i class="fas fa-id-card"></i> الرقم الضريبي: 123-456-789</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>روابط سريعة</h3>
+                <a href="#" onclick="showSection('home')">الصفحة الرئيسية</a>
+                <a href="#" onclick="showSection('create')">إنشاء حساب</a>
+                <a href="#" onclick="showSection('transfer')">تحويل أموال</a>
+                <a href="#" onclick="showSection('international')">تحويل دولي</a>
+                <a href="#" onclick="showSection('support')">خدمة العملاء</a>
+            </div>
+            
+            <div class="footer-section">
+                <h3>تواصل معنا</h3>
+                <p><i class="fas fa-phone"></i> 01023719035</p>
+                <p><i class="fas fa-envelope"></i> FOOXGIMING@GMAIL.COM</p>
+                <p><i class="fas fa-map-marker-alt"></i> القاهرة، مصر</p>
+                
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>جميع الحقوق محفوظة &copy; 2025 FOOXPAY. نظام تحويل الأموال الآمن.</p>
+            <p>مرخص من البنك المركزي المصري</p>
+        </div>
+    </div>
+
+    <script>
+        // تخزين الحسابات
+        let accounts = {};
+        
+        // تعريف فئة الحساب
+        class Account {
+            constructor(name, email, phone, initialBalance = 0) {
+                this.name = name;
+                this.email = email;
+                this.phone = phone;
+                this.balance = initialBalance;
+                this.transactions = [];
+                this.investments = [];
+                this.cards = [
+                    {
+                        type: 'VISA',
+                        number: '•••• •••• •••• ' + Math.floor(1000 + Math.random() * 9000),
+                        holder: name,
+                        expiry: '12/' + (new Date().getFullYear() + 3).toString().slice(-2),
+                        cvv: '•••'
+                    }
+                ];
+            }
+            
+            deposit(amount, method = 'unknown') {
+                if (amount > 0) {
+                    this.balance += amount;
+                    const transaction = {
+                        type: 'إيداع',
+                        amount,
+                        method,
+                        date: new Date().toLocaleString(),
+                        balance: this.balance
+                    };
+                    this.transactions.push(transaction);
+                    return true;
+                }
+                return false;
+            }
+            
+            withdraw(amount, method = 'unknown') {
+                if (amount > 0 && amount <= this.balance) {
+                    this.balance -= amount;
+                    const transaction = {
+                        type: 'سحب',
+                        amount: -amount,
+                        method,
+                        date: new Date().toLocaleString(),
+                        balance: this.balance
+                    };
+                    this.transactions.push(transaction);
+                    return true;
+                }
+                return false;
+            }
+            
+            transferTo(otherAccount, amount, method = 'transfer', note = '') {
+                if (this.withdraw(amount, `تحويل إلى ${otherAccount.name}`)) {
+                    otherAccount.deposit(amount, `تحويل من ${this.name}`);
+                    const transaction = {
+                        type: 'تحويل',
+                        amount: -amount,
+                        method: `إلى ${otherAccount.name}`,
+                        date: new Date().toLocaleString(),
+                        balance: this.balance,
+                        note
+                    };
+                    this.transactions.push(transaction);
+                    
+                    const otherTransaction = {
+                        type: 'تحويل',
+                        amount,
+                        method: `من ${this.name}`,
+                        date: new Date().toLocaleString(),
+                        balance: otherAccount.balance,
+                        note
+                    };
+                    otherAccount.transactions.push(otherTransaction);
+                    return true;
+                }
+                return false;
+            }
+            
+            internationalTransfer(amount, country, bank, account, currency, fees) {
+                const total = amount + fees;
+                if (this.withdraw(total, `تحويل دولي إلى ${country}`)) {
+                    const transaction = {
+                        type: 'تحويل دولي',
+                        amount: -total,
+                        method: `إلى ${bank} (${country})`,
+                        date: new Date().toLocaleString(),
+                        balance: this.balance,
+                        details: {
+                            account,
+                            currency,
+                            fees
+                        }
+                    };
+                    this.transactions.push(transaction);
+                    return true;
+                }
+                return false;
+            }
+            
+            bankTransfer(amount, bankName, iban) {
+                if (this.withdraw(amount, `تحويل بنكي إلى ${bankName}`)) {
+                    const transaction = {
+                        type: 'تحويل بنكي',
+                        amount: -amount,
+                        method: `إلى ${bankName}`,
+                        date: new Date().toLocaleString(),
+                        balance: this.balance,
+                        details: {
+                            iban
+                        }
+                    };
+                    this.transactions.push(transaction);
+                    return true;
+                }
+                return false;
+            }
+            
+            requestCashDelivery(amount, receiver, phone, address, date) {
+                const fees = Math.min(50, amount * 0.02);
+                const total = amount + fees;
+                if (this.withdraw(total, `تحويل نقدي إلى ${receiver}`)) {
+                    const transaction = {
+                        type: 'تحويل نقدي',
+                        amount: -total,
+                        method: `تسليم إلى ${receiver}`,
+                        date: new Date().toLocaleString(),
+                        balance: this.balance,
+                        details: {
+                            phone,
+                            address,
+                            deliveryDate: date,
+                            fees
+                        }
+                    };
+                    this.transactions.push(transaction);
+                    return {
+                        success: true,
+                        fees
+                    };
+                }
+                return {
+                    success: false
+                };
+            }
+            
+            invest(amount, plan, duration) {
+                if (amount > 0 && amount <= this.balance) {
+                    this.balance -= amount;
+                    const expectedReturn = calculateReturn(amount, plan, duration);
+                    const investment = {
+                        amount,
+                        plan,
+                        duration,
+                        startDate: new Date(),
+                        expectedReturn,
+                        endDate: new Date(Date.now() + duration * 24 * 60 * 60 * 1000)
+                    };
+                    this.investments.push(investment);
+                    
+                    const transaction = {
+                        type: 'استثمار',
+                        amount: -amount,
+                        method: `خطة ${plan}`,
+                        date: new Date().toLocaleString(),
+                        balance: this.balance,
+                        details: {
+                            duration,
+                            expectedReturn
+                        }
+                    };
+                    this.transactions.push(transaction);
+                    return investment;
+                }
+                return null;
+            }
+            
+            sendTip(otherAccount, amount, message = '') {
+                if (this.withdraw(amount, `إكرامية إلى ${otherAccount.name}`)) {
+                    otherAccount.deposit(amount, `إكرامية من ${this.name}`);
+                    const transaction = {
+                        type: 'إكرامية',
+                        amount: -amount,
+                        method: `إلى ${otherAccount.name}`,
+                        date: new Date().toLocaleString(),
+                        balance: this.balance,
+                        note: message
+                    };
+                    this.transactions.push(transaction);
+                    
+                    const otherTransaction = {
+                        type: 'إكرامية',
+                        amount,
+                        method: `من ${this.name}`,
+                        date: new Date().toLocaleString(),
+                        balance: otherAccount.balance,
+                        note: message
+                    };
+                    otherAccount.transactions.push(otherTransaction);
+                    return true;
+                }
+                return false;
+            }
+            
+            addCard(type) {
+                const newCard = {
+                    type,
+                    number: '•••• •••• •••• ' + Math.floor(1000 + Math.random() * 9000),
+                    holder: this.name,
+                    expiry: '12/' + (new Date().getFullYear() + 3).toString().slice(-2),
+                    cvv: '•••'
+                };
+                this.cards.push(newCard);
+                return newCard;
+            }
+        }
+        
+        function calculateReturn(amount, plan, duration) {
+            let rate;
+            switch(plan) {
+                case 'short': rate = 0.10; break;
+                case 'medium': rate = 0.25; break;
+                case 'long': rate = 0.50; break;
+                default: rate = 0.10;
+            }
+            return amount + (amount * rate * (duration / 30));
+        }
+        
+        // تبديل القائمة الجانبية
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.toggle('open');
+            mainContent.classList.toggle('shifted');
+        }
+        
+        // عرض قسم معين وإخفاء الآخرين
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            
+            // إغلاق القائمة بعد الاختيار (على الأجهزة الصغيرة)
+            if (window.innerWidth < 768) {
+                toggleMenu();
+            }
+        }
+        
+        // إنشاء حساب جديد
+        function createAccount() {
+            const name = document.getElementById('newAccountName').value;
+            const email = document.getElementById('newAccountEmail').value;
+            const phone = document.getElementById('newAccountPhone').value;
+            const balance = parseFloat(document.getElementById('initialBalance').value) || 0;
+            
+            if (!name || !email || !phone) {
+                showResult('createResult', 'يجب ملء جميع الحقول المطلوبة');
+                return;
+            }
+            
+            if (accounts[name]) {
+                showResult('createResult', 'الحساب موجود بالفعل');
+                return;
+            }
+            
+            accounts[name] = new Account(name, email, phone, balance);
+            showResult('createResult', `تم إنشاء حساب جديد باسم ${name} برصيد ${balance}. تم إصدار بطاقة VISA للحساب.`);
+        }
+        
+        // عرض الرصيد
+        function showBalance() {
+            const name = document.getElementById('balanceAccountName').value;
+            
+            if (!accounts[name]) {
+                showResult('balanceResult', 'الحساب غير موجود');
+                return;
+            }
+            
+            const account = accounts[name];
+            let html = `
+                <p>الرصيد الحالي: <strong>${account.balance}</strong></p>
+                <p>البريد الإلكتروني: ${account.email}</p>
+                <p>رقم الهاتف: ${account.phone}</p>
+                <h4>البطاقات المصرفية:</h4>
+            `;
+            
+            account.cards.forEach(card => {
+                html += `
+                    <div style="background-color: rgba(76, 175, 80, 0.1); padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid #4CAF50;">
+                        <p><strong>${card.type}</strong>: ${card.number}</p>
+                        <p>اسم الحامل: ${card.holder}</p>
+                        <p>تاريخ الانتهاء: ${card.expiry}</p>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('balanceResult').innerHTML = html;
+            document.getElementById('balanceResult').style.display = 'block';
+        }
+        
+        // إيداع أموال
+        function depositMoney() {
+            const name = document.getElementById('depositAccountName').value;
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const method = document.getElementById('depositMethod').value;
+            
+            if (!accounts[name]) {
+                showResult('depositResult', 'الحساب غير موجود');
+                return;
+            }
+            
+            if (accounts[name].deposit(amount, method)) {
+                showResult('depositResult', `تم إيداع ${amount} بنجاح (${method}). الرصيد الجديد: ${accounts[name].balance}`);
+            } else {
+                showResult('depositResult', 'المبلغ غير صالح');
+            }
+        }
+        
+        // سحب أموال
+        function withdrawMoney() {
+            const name = document.getElementById('withdrawAccountName').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const method = document.getElementById('withdrawMethod').value;
+            
+            if (!accounts[name]) {
+                showResult('withdrawResult', 'الحساب غير موجود');
+                return;
+            }
+            
+            if (accounts[name].withdraw(amount, method)) {
+                showResult('withdrawResult', `تم سحب ${amount} بنجاح (${method}). الرصيد الجديد: ${accounts[name].balance}`);
+            } else {
+                showResult('withdrawResult', 'المبلغ غير صالح أو الرصيد غير كافي');
+            }
+        }
+        
+        // تحويل أموال
+        function transferMoney() {
+            const fromName = document.getElementById('fromAccount').value;
+            const toName = document.getElementById('toAccount').value;
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+            const note = document.getElementById('transferNote').value;
+            
+            if (!accounts[fromName] || !accounts[toName]) {
+                showResult('transferResult', 'أحد الحسابات غير موجود');
+                return;
+            }
+            
+            if (fromName === toName) {
+                showResult('transferResult', 'لا يمكن التحويل لنفس الحساب');
+                return;
+            }
+            
+            if (accounts[fromName].transferTo(accounts[toName], amount, 'تحويل محلي', note)) {
+                showResult('transferResult', `تم التحويل بنجاح إلى ${toName}. الرصيد الجديد: ${accounts[fromName].balance}`);
+            } else {
+                showResult('transferResult', 'المبلغ غير صالح أو الرصيد غير كافي');
+            }
+        }
+        
+        // تحويل دولي
+        function internationalTransfer() {
+            const fromName = document.getElementById('intFromAccount').value;
+            const country = document.getElementById('intCountry').value;
+            const bankName = document.getElementById('intBankName').value;
+            const account = document.getElementById('intAccountNumber').value;
+            const amount = parseFloat(document.getElementById('intAmount').value);
+            const currency = document.getElementById('intCurrency').value;
+            
+            if (!accounts[fromName]) {
+                showResult('internationalResult', 'الحساب المرسل غير موجود');
+                return;
+            }
+            
+            if (!bankName || !account) {
+                showResult('internationalResult', 'يجب إدخال بيانات البنك المستلم');
+                return;
+            }
+            
+            const fees = amount * 0.03; // 3% رسوم تحويل دولي
+            if (accounts[fromName].internationalTransfer(amount, country, bankName, account, currency, fees)) {
+                showResult('internationalResult', `تم تحويل ${amount} ${currency} بنجاح إلى ${bankName} في ${country}. الرسوم: ${fees.toFixed(2)}. الرصيد الجديد: ${accounts[fromName].balance}`);
+            } else {
+                showResult('internationalResult', 'المبلغ غير صالح أو الرصيد غير كافي');
+            }
+        }
+        
+        // تحويل بنكي
+        function bankTransfer() {
+            const fromName = document.getElementById('bankFromAccount').value;
+            const bankName = document.getElementById('bankName').value;
+            const iban = document.getElementById('ibanNumber').value;
+            const amount = parseFloat(document.getElementById('bankAmount').value);
+            
+            if (!accounts[fromName]) {
+                showResult('bankTransferResult', 'الحساب المرسل غير موجود');
+                return;
+            }
+            
+            if (!bankName || !iban) {
+                showResult('bankTransferResult', 'يجب إدخال بيانات البنك المستلم');
+                return;
+            }
+            
+            if (accounts[fromName].bankTransfer(amount, bankName, iban)) {
+                showResult('bankTransferResult', `تم تحويل ${amount} بنجاح إلى البنك ${bankName} (IBAN: ${iban}). الرصيد الجديد: ${accounts[fromName].balance}`);
+            } else {
+                showResult('bankTransferResult', 'المبلغ غير صالح أو الرصيد غير كافي');
+            }
+        }
+        
+        // تحويل تسليم يدوي
+        function cashDelivery() {
+            const fromName = document.getElementById('deliveryFromAccount').value;
+            const receiver = document.getElementById('receiverName').value;
+            const phone = document.getElementById('receiverPhone').value;
+            const amount = parseFloat(document.getElementById('deliveryAmount').value);
+            const address = document.getElementById('deliveryAddress').value;
+            const date = document.getElementById('deliveryDate').value;
+            
+            if (!accounts[fromName]) {
+                showResult('cashDeliveryResult', 'الحساب المرسل غير موجود');
+                return;
+            }
+            
+            if (!receiver || !phone || !address || !date) {
+                showResult('cashDeliveryResult', 'يجب إدخال جميع بيانات التسليم');
+                return;
+            }
+            
+            const result = accounts[fromName].requestCashDelivery(amount, receiver, phone, address, date);
+            if (result.success) {
+                showResult('cashDeliveryResult', `تم طلب تسليم ${amount} نقدياً إلى ${receiver} (${phone}) على العنوان: ${address}. تاريخ التسليم: ${date}. رسوم التسليم: ${result.fees}. الرصيد الجديد: ${accounts[fromName].balance}`);
+            } else {
+                showResult('cashDeliveryResult', 'المبلغ غير صالح أو الرصيد غير كافي');
+            }
+        }
+        
+        // استثمار
+        function investMoney() {
+            const name = document.getElementById('investmentAccount').value;
+            const amount = parseFloat(document.getElementById('investmentAmount').value);
+            const plan = document.getElementById('investmentPlan').value;
+            const duration = parseInt(document.getElementById('investmentDuration').value);
+            
+            if (!accounts[name]) {
+                showResult('investmentResult', 'الحساب غير موجود');
+                return;
+            }
+            
+            const investment = accounts[name].invest(amount, plan, duration);
+            if (investment) {
+                const endDate = new Date(investment.endDate).toLocaleDateString();
+                showResult('investmentResult', `تم استثمار ${amount} بنجاح في خطة ${plan} لمدة ${duration} يوم. العائد المتوقع: ${investment.expectedReturn.toFixed(2)}. تاريخ الانتهاء: ${endDate}. الرصيد الجديد: ${accounts[name].balance}`);
+            } else {
+                showResult('investmentResult', 'المبلغ غير صالح أو الرصيد غير كافي');
+            }
+        }
+        
+        // إكرامية
+        function sendTip() {
+            const fromName = document.getElementById('tipFromAccount').value;
+            const toName = document.getElementById('tipToAccount').value;
+            const amount = parseFloat(document.getElementById('tipAmount').value);
+            const message = document.getElementById('tipMessage').value;
+            
+            if (!accounts[fromName] || !accounts[toName]) {
+                showResult('tipResult', 'أحد الحسابات غير موجود');
+                return;
+            }
+            
+            if (fromName === toName) {
+                showResult('tipResult', 'لا يمكن إرسال إكرامية لنفس الحساب');
+                return;
+            }
+            
+            if (accounts[fromName].sendTip(accounts[toName], amount, message)) {
+                showResult('tipResult', `تم إرسال إكرامية ${amount} بنجاح إلى ${toName}${message ? ` مع الرسالة: "${message}"` : ''}. الرصيد الجديد: ${accounts[fromName].balance}`);
+            } else {
+                showResult('tipResult', 'المبلغ غير صالح أو الرصيد غير كافي');
+            }
+        }
+        
+        // خدمة العملاء
+        function requestSupport() {
+            const account = document.getElementById('supportAccount').value;
+            const subject = document.getElementById('supportSubject').value;
+            const message = document.getElementById('supportMessage').value;
+            
+            if (!message) {
+                showResult('supportResult', 'يجب إدخال تفاصيل الاستفسار');
+                return;
+            }
+            
+            showResult('supportResult', `تم استلام طلب المساعدة الخاص بك${account ? ` للحساب ${account}` : ''} بخصوص ${subject}. سنتواصل معك قريباً على وسيلة الاتصال المفضلة لديك.`);
+        }
+        
+        // عرض سجل المعاملات
+        function showTransactions() {
+            const name = document.getElementById('transactionsAccountName').value;
+            
+            if (!accounts[name]) {
+                showResult('transactionsResult', 'الحساب غير موجود');
+                return;
+            }
+            
+            const transactions = accounts[name].transactions;
+            if (transactions.length === 0) {
+                showResult('transactionsResult', 'لا توجد معاملات لهذا الحساب');
+                return;
+            }
+            
+            let html = '<h3>سجل المعاملات:</h3>';
+            transactions.forEach(t => {
+                const amountColor = t.amount >= 0 ? '#4CAF50' : '#f44336';
+                const amountSign = t.amount >= 0 ? '+' : '';
+                
+                html += `
+                    <div class="transaction">
+                        <div>
+                            <strong>${t.type}</strong> - ${t.method}
+                            ${t.note ? `<div style="color: #aaa; font-size: 14px;">${t.note}</div>` : ''}
+                            ${t.details ? `<div style="color: #aaa; font-size: 12px;">${JSON.stringify(t.details)}</div>` : ''}
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="color: ${amountColor};">${amountSign}${t.amount}</div>
+                            <div class="transaction-date">${t.date}</div>
+                            <div style="font-size: 12px;">الرصيد: ${t.balance}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // عرض الاستثمارات إذا وجدت
+            if (accounts[name].investments.length > 0) {
+                html += '<h3 style="margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;">الاستثمارات النشطة:</h3>';
+                accounts[name].investments.forEach(inv => {
+                    const endDate = new Date(inv.endDate).toLocaleDateString();
+                    html += `
+                        <div class="transaction">
+                            <div>
+                                <strong>استثمار</strong> - خطة ${inv.plan}
+                                <div style="color: #aaa; font-size: 14px;">المدة: ${inv.duration} يوم</div>
+                                <div style="color: #aaa; font-size: 14px;">تاريخ الانتهاء: ${endDate}</div>
+                            </div>
+                            <div style="text-align: left;">
+                                <div style="color: #f44336;">-${inv.amount}</div>
+                                <div style="color: #4CAF50; font-size: 14px;">العائد المتوقع: ${inv.expectedReturn.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            document.getElementById('transactionsResult').innerHTML = html;
+            document.getElementById('transactionsResult').style.display = 'block';
+        }
+        
+        // التواصل
+        function sendContact() {
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const subject = document.getElementById('contactSubject').value;
+            const message = document.getElementById('contactMessage').value;
+            
+            if (!name || !email || !subject || !message) {
+                showResult('contactResult', 'يجب ملء جميع الحقول المطلوبة');
+                return;
+            }
+            
+            showResult('contactResult', `شكراً ${name} على تواصلك معنا بخصوص "${subject}". سنرد على رسالتك على ${email} في أقرب وقت ممكن.`);
+        }
+        
+        // تحويل فودافون كاش
+        function vodafoneTransfer() {
+            const fromName = document.getElementById('vodafoneAccount').value;
+            const number = document.getElementById('vodafoneNumber').value;
+            const amount = parseFloat(document.getElementById('vodafoneAmount').value);
+            
+            if (!accounts[fromName]) {
+                showResult('vodafoneResult', 'الحساب المرسل غير موجود');
+                return;
+            }
+            
+            if (!number || number.length < 10) {
+                showResult('vodafoneResult', 'رقم فودافون كاش غير صحيح');
+                return;
+            }
+            
+            if (accounts[fromName].withdraw(amount, `تحويل فودافون كاش إلى ${number}`)) {
+                showResult('vodafoneResult', `تم تحويل ${amount} بنجاح إلى فودافون كاش ${number}. الرصيد الجديد: ${accounts[fromName].balance}`);
+            } else {
+                showResult('vodafoneResult', 'المبلغ غير صالح أو الرصيد غير كافي');
+            }
+        }
+        
+        // تحويل أورانج كاش
+        function orangeTransfer() {
+            const fromName = document.getElementById('orangeAccount').value;
+            const number = document.getElementById('orangeNumber').value;
+            const amount = parseFloat(document.getElementById('orangeAmount').value);
+            
+            if (!accounts[fromName]) {
+                showResult('orangeResult', 'الحساب المرسل غير موجود');
+                return;
+            }
+            
+            if (!number || number.length < 10) {
+                showResult('orangeResult', 'رقم أورانج كاش غير صحيح');
+                return;
+            }
+            
+            if (accounts[fromName].withdraw(amount, `تحويل أورانج كاش إلى ${number}`)) {
+                showResult('orangeResult', `تم تحويل ${amount} بنجاح إلى أورانج كاش ${number}. الرصيد الجديد: ${accounts[fromName].balance}`);
+            } else {
+                showResult('orangeResult', 'المبلغ غير صالح أو الرصيد غير كافي');
+            }
+        }
+        
+        // تحويل باي بال
+        function paypalTransfer() {
+            const fromName = document.getElementById('paypalAccount').value;
+            const email = document.getElementById('paypalEmail').value;
+            const amount = parseFloat(document.getElementById('paypalAmount').value);
+            const currency = document.getElementById('paypalCurrency').value;
+            
+            if (!accounts[fromName]) {
+                showResult('paypalResult', 'الحساب المرسل غير موجود');
+                return;
+            }
+            
+            if (!email || !email.includes('@')) {
+                showResult('paypalResult', 'بريد باي بال غير صحيح');
+                return;
+            }
+            
+            const fees = amount * 0.02; // 2% رسوم تحويل باي بال
+            const total = amount + fees;
+            
+            if (accounts[fromName].withdraw(total, `تحويل باي بال إلى ${email}`)) {
+                showResult('paypalResult', `تم تحويل ${amount} ${currency} بنجاح إلى باي بال ${email}. الرسوم: ${fees.toFixed(2)} ${currency}. الرصيد الجديد: ${accounts[fromName].balance}`);
+            } else {
+                showResult('paypalResult', 'المبلغ غير صالح أو الرصيد غير كافي');
+            }
+        }
+        
+        // عرض النتيجة
+        function showResult(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+        
+        // إنشاء بعض الحسابات الافتراضية للاختبار
+        window.onload = function() {
+            accounts['admin'] = new Account('admin', 'admin@fooxpay.com', '01000000000', 100000);
+            accounts['user1'] = new Account('user1', 'user1@example.com', '01011111111', 50000);
+            accounts['user2'] = new Account('user2', 'user2@example.com', '01022222222', 20000);
+            
+            // إجراء بعض المعاملات الافتراضية
+            accounts['admin'].deposit(5000, 'إيداع أولي');
+            accounts['admin'].transferTo(accounts['user1'], 2000, 'تحويل', 'سداد قرض');
+            accounts['user1'].sendTip(accounts['user2'], 500, 'شكراً على المساعدة');
+            accounts['user2'].invest(10000, 'medium', 90);
+            
+            // إضافة بطاقات إضافية
+            accounts['admin'].addCard('MasterCard');
+            accounts['user1'].addCard('VISA');
+            accounts['user2'].addCard('MasterCard');
+        };
+    </script>
+</body>
+</html>
